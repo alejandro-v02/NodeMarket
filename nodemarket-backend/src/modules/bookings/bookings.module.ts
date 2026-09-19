@@ -34,5 +34,6 @@ import { TypeOrmBookingRepository } from './infrastructure/persistence/typeorm-b
       useClass: TypeOrmBookingRepository,
     },
   ],
+  exports: [BOOKING_REPOSITORY],
 })
 export class BookingsModule {}
