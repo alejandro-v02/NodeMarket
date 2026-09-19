@@ -1,12 +1,12 @@
 import { User, UserRole } from '../../domain/entities/user.entity';
 
 export class UserResponseDto {
-  id: string;
-  name: string;
-  email: string;
-  role: UserRole;
-  createdAt: Date;
-  isActive: boolean;
+  id!: string;
+  name!: string;
+  email!: string;
+  role!: UserRole;
+  createdAt!: Date;
+  isActive!: boolean;
 
   static fromDomain(user: User): UserResponseDto {
     const dto = new UserResponseDto();
