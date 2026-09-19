@@ -24,5 +24,6 @@ import { TypeOrmCategoryRepository } from './infrastructure/persistence/typeorm-
       useClass: TypeOrmCategoryRepository,
     },
   ],
+  exports: [CATEGORY_REPOSITORY],
 })
 export class CategoriesModule {}
