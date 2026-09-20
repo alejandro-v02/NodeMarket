@@ -34,6 +34,6 @@ import { JwtStrategy } from './infrastructure/strategies/jwt.strategy';
       useClass: TypeOrmUserRepository,
     },
   ],
-  exports: [USER_REPOSITORY],
+  exports: [USER_REPOSITORY, JwtModule],
 })
 export class UsersModule {}
