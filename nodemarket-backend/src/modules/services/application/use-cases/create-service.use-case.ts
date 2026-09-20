@@ -20,11 +20,11 @@ export class CreateServiceUseCase {
     private readonly categoryRepository: CategoryRepository,
   ) {}
 
-  async execute(dto: CreateServiceDto): Promise<Service> {
-    const provider = await this.userRepository.findById(dto.providerId);
+  async execute(dto: CreateServiceDto, providerId: string): Promise<Service> {
+    const provider = await this.userRepository.findById(providerId);
     if (!provider || !provider.isProvider()) {
       throw new BadRequestException(
-        'providerId must reference an existing provider',
+        'Only an existing provider can create a service',
       );
     }
 
@@ -37,7 +37,7 @@ export class CreateServiceUseCase {
 
     const service = new Service(
       randomUUID(),
-      dto.providerId,
+      providerId,
       dto.categoryId,
       dto.title,
       dto.description,

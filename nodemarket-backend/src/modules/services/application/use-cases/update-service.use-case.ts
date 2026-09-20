@@ -1,11 +1,13 @@
 import {
   BadRequestException,
+  ForbiddenException,
   Inject,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
 import { CATEGORY_REPOSITORY } from '../../../categories/domain/repositories/category.repository';
 import type { CategoryRepository } from '../../../categories/domain/repositories/category.repository';
+import { UserRole } from '../../../users/domain/entities/user.entity';
 import { Service } from '../../domain/entities/service.entity';
 import { SERVICE_REPOSITORY } from '../../domain/repositories/service.repository';
 import type { ServiceRepository } from '../../domain/repositories/service.repository';
@@ -20,10 +22,22 @@ export class UpdateServiceUseCase {
     private readonly categoryRepository: CategoryRepository,
   ) {}
 
-  async execute(id: string, dto: UpdateServiceDto): Promise<Service> {
+  async execute(
+    id: string,
+    dto: UpdateServiceDto,
+    requesterId: string,
+    requesterRole: UserRole,
+  ): Promise<Service> {
     const service = await this.serviceRepository.findById(id);
     if (!service) {
       throw new NotFoundException('Service not found');
+    }
+
+    if (
+      requesterRole !== UserRole.ADMIN &&
+      service.providerId !== requesterId
+    ) {
+      throw new ForbiddenException('You can only update your own services');
     }
 
     if (dto.categoryId) {
