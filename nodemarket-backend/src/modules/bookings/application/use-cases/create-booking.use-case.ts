@@ -20,11 +20,11 @@ export class CreateBookingUseCase {
     private readonly serviceRepository: ServiceRepository,
   ) {}
 
-  async execute(dto: CreateBookingDto): Promise<Booking> {
-    const client = await this.userRepository.findById(dto.clientId);
+  async execute(dto: CreateBookingDto, clientId: string): Promise<Booking> {
+    const client = await this.userRepository.findById(clientId);
     if (!client || !client.isClient()) {
       throw new BadRequestException(
-        'clientId must reference an existing client',
+        'Only an existing client can create a booking',
       );
     }
 
@@ -37,7 +37,7 @@ export class CreateBookingUseCase {
 
     const booking = new Booking(
       randomUUID(),
-      dto.clientId,
+      clientId,
       service.providerId,
       dto.serviceId,
       new Date(dto.scheduledAt),

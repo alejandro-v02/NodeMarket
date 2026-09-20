@@ -8,9 +8,6 @@ import {
 
 export class CreateBookingDto {
   @IsUUID()
-  clientId!: string;
-
-  @IsUUID()
   serviceId!: string;
 
   @IsDateString()
