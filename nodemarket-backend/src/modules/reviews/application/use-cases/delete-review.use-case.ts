@@ -1,4 +1,10 @@
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
+import { UserRole } from '../../../users/domain/entities/user.entity';
 import { REVIEW_REPOSITORY } from '../../domain/repositories/review.repository';
 import type { ReviewRepository } from '../../domain/repositories/review.repository';
 
@@ -9,10 +15,18 @@ export class DeleteReviewUseCase {
     private readonly reviewRepository: ReviewRepository,
   ) {}
 
-  async execute(id: string): Promise<void> {
+  async execute(
+    id: string,
+    requesterId: string,
+    requesterRole: UserRole,
+  ): Promise<void> {
     const review = await this.reviewRepository.findById(id);
     if (!review) {
       throw new NotFoundException('Review not found');
+    }
+
+    if (requesterRole !== UserRole.ADMIN && review.clientId !== requesterId) {
+      throw new ForbiddenException('You can only delete your own reviews');
     }
 
     await this.reviewRepository.delete(id);

@@ -9,7 +9,14 @@ import {
   Patch,
   Post,
   Query,
+  UseGuards,
 } from '@nestjs/common';
+import { CurrentUser } from '../../../../shared/infrastructure/decorators/current-user.decorator';
+import type { AuthenticatedUser } from '../../../../shared/infrastructure/decorators/current-user.decorator';
+import { Roles } from '../../../../shared/infrastructure/decorators/roles.decorator';
+import { JwtAuthGuard } from '../../../../shared/infrastructure/guards/jwt-auth.guard';
+import { RolesGuard } from '../../../../shared/infrastructure/guards/roles.guard';
+import { UserRole } from '../../../users/domain/entities/user.entity';
 import { CreateReviewDto } from '../../application/dtos/create-review.dto';
 import { ReviewResponseDto } from '../../application/dtos/review-response.dto';
 import { UpdateReviewDto } from '../../application/dtos/update-review.dto';
@@ -47,24 +54,40 @@ export class ReviewsController {
     return ReviewResponseDto.fromDomain(review);
   }
 
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.CLIENT)
   @Post()
-  async create(@Body() dto: CreateReviewDto): Promise<ReviewResponseDto> {
-    const review = await this.createReviewUseCase.execute(dto);
+  async create(
+    @Body() dto: CreateReviewDto,
+    @CurrentUser() user: AuthenticatedUser,
+  ): Promise<ReviewResponseDto> {
+    const review = await this.createReviewUseCase.execute(dto, user.userId);
     return ReviewResponseDto.fromDomain(review);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Patch(':id')
   async update(
     @Param('id') id: string,
     @Body() dto: UpdateReviewDto,
+    @CurrentUser() user: AuthenticatedUser,
   ): Promise<ReviewResponseDto> {
-    const review = await this.updateReviewUseCase.execute(id, dto);
+    const review = await this.updateReviewUseCase.execute(
+      id,
+      dto,
+      user.userId,
+      user.role,
+    );
     return ReviewResponseDto.fromDomain(review);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  async delete(@Param('id') id: string): Promise<void> {
-    await this.deleteReviewUseCase.execute(id);
+  async delete(
+    @Param('id') id: string,
+    @CurrentUser() user: AuthenticatedUser,
+  ): Promise<void> {
+    await this.deleteReviewUseCase.execute(id, user.userId, user.role);
   }
 }

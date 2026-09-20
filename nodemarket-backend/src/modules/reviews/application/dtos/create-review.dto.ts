@@ -12,9 +12,6 @@ export class CreateReviewDto {
   @IsUUID()
   bookingId!: string;
 
-  @IsUUID()
-  clientId!: string;
-
   @IsInt()
   @Min(1)
   @Max(5)

@@ -1,6 +1,7 @@
 import {
   BadRequestException,
   ConflictException,
+  ForbiddenException,
   Inject,
   Injectable,
 } from '@nestjs/common';
@@ -22,7 +23,7 @@ export class CreateReviewUseCase {
     private readonly bookingRepository: BookingRepository,
   ) {}
 
-  async execute(dto: CreateReviewDto): Promise<Review> {
+  async execute(dto: CreateReviewDto, clientId: string): Promise<Review> {
     const booking = await this.bookingRepository.findById(dto.bookingId);
     if (!booking) {
       throw new BadRequestException(
@@ -30,10 +31,8 @@ export class CreateReviewUseCase {
       );
     }
 
-    if (booking.clientId !== dto.clientId) {
-      throw new BadRequestException(
-        "clientId does not match the booking's client",
-      );
+    if (booking.clientId !== clientId) {
+      throw new ForbiddenException('You can only review your own bookings');
     }
 
     if (booking.status !== BookingStatus.COMPLETED) {
@@ -50,7 +49,7 @@ export class CreateReviewUseCase {
     const review = new Review(
       randomUUID(),
       dto.bookingId,
-      dto.clientId,
+      clientId,
       booking.providerId,
       dto.rating,
       dto.comment ?? null,
