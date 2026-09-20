@@ -1,5 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import { SkipThrottle } from '@nestjs/throttler';
 import {
   OnGatewayConnection,
   WebSocketGateway,
@@ -16,6 +17,7 @@ function userRoom(userId: string): string {
 }
 
 @Injectable()
+@SkipThrottle()
 @WebSocketGateway({ namespace: '/notifications', cors: { origin: '*' } })
 export class NotificationsGateway
   implements OnGatewayConnection, NotificationBroadcaster

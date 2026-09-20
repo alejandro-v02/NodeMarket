@@ -5,6 +5,7 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import { SkipThrottle } from '@nestjs/throttler';
 import {
   ConnectedSocket,
   MessageBody,
@@ -70,6 +71,7 @@ async function runWsHandler<T>(fn: () => Promise<T>): Promise<T> {
   }
 }
 
+@SkipThrottle()
 @UsePipes(
   new ValidationPipe({
     whitelist: true,
