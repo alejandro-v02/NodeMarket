@@ -5,6 +5,8 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { NotificationType } from '../../../notifications/domain/entities/notification.entity';
+import { CreateNotificationUseCase } from '../../../notifications/application/use-cases/create-notification.use-case';
 import { UserRole } from '../../../users/domain/entities/user.entity';
 import { Booking } from '../../domain/entities/booking.entity';
 import { BOOKING_REPOSITORY } from '../../domain/repositories/booking.repository';
@@ -15,6 +17,7 @@ export class CompleteBookingUseCase {
   constructor(
     @Inject(BOOKING_REPOSITORY)
     private readonly bookingRepository: BookingRepository,
+    private readonly createNotificationUseCase: CreateNotificationUseCase,
   ) {}
 
   async execute(
@@ -40,6 +43,16 @@ export class CompleteBookingUseCase {
       throw new BadRequestException((error as Error).message);
     }
 
-    return this.bookingRepository.update(booking);
+    const updated = await this.bookingRepository.update(booking);
+
+    await this.createNotificationUseCase.execute({
+      userId: updated.clientId,
+      type: NotificationType.BOOKING_COMPLETED,
+      title: 'Booking completed',
+      message: 'Your provider marked this booking as completed.',
+      relatedId: updated.id,
+    });
+
+    return updated;
   }
 }

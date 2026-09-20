@@ -5,6 +5,8 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { NotificationType } from '../../../notifications/domain/entities/notification.entity';
+import { CreateNotificationUseCase } from '../../../notifications/application/use-cases/create-notification.use-case';
 import { UserRole } from '../../../users/domain/entities/user.entity';
 import { Booking } from '../../domain/entities/booking.entity';
 import { BOOKING_REPOSITORY } from '../../domain/repositories/booking.repository';
@@ -15,6 +17,7 @@ export class CancelBookingUseCase {
   constructor(
     @Inject(BOOKING_REPOSITORY)
     private readonly bookingRepository: BookingRepository,
+    private readonly createNotificationUseCase: CreateNotificationUseCase,
   ) {}
 
   async execute(
@@ -41,6 +44,26 @@ export class CancelBookingUseCase {
       throw new BadRequestException((error as Error).message);
     }
 
-    return this.bookingRepository.update(booking);
+    const updated = await this.bookingRepository.update(booking);
+
+    const recipients = new Set<string>();
+    if (requesterId !== updated.clientId) {
+      recipients.add(updated.clientId);
+    }
+    if (requesterId !== updated.providerId) {
+      recipients.add(updated.providerId);
+    }
+
+    for (const userId of recipients) {
+      await this.createNotificationUseCase.execute({
+        userId,
+        type: NotificationType.BOOKING_CANCELLED,
+        title: 'Booking cancelled',
+        message: 'This booking was cancelled.',
+        relatedId: updated.id,
+      });
+    }
+
+    return updated;
   }
 }

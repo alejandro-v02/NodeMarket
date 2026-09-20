@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { NotificationsModule } from '../notifications/notifications.module';
 import { ServicesModule } from '../services/services.module';
 import { UsersModule } from '../users/users.module';
 import { AcceptBookingUseCase } from './application/use-cases/accept-booking.use-case';
@@ -19,6 +20,7 @@ import { TypeOrmBookingRepository } from './infrastructure/persistence/typeorm-b
     TypeOrmModule.forFeature([BookingOrmEntity]),
     UsersModule,
     ServicesModule,
+    NotificationsModule,
   ],
   controllers: [BookingsController],
   providers: [
