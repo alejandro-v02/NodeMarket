@@ -10,9 +10,6 @@ import {
 
 export class CreateServiceDto {
   @IsUUID()
-  providerId!: string;
-
-  @IsUUID()
   categoryId!: string;
 
   @IsString()
