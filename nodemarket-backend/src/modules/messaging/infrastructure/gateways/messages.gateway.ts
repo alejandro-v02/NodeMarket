@@ -1,5 +1,11 @@
-import { HttpException, Logger } from '@nestjs/common';
+import {
+  HttpException,
+  Logger,
+  UsePipes,
+  ValidationPipe,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import { SkipThrottle } from '@nestjs/throttler';
 import {
   ConnectedSocket,
   MessageBody,
@@ -13,6 +19,8 @@ import {
 import { Server, Socket } from 'socket.io';
 import { UserRole } from '../../../users/domain/entities/user.entity';
 import type { JwtPayload } from '../../../users/infrastructure/strategies/jwt.strategy';
+import { JoinBookingDto } from '../../application/dtos/join-booking.dto';
+import { MarkMessageReadDto } from '../../application/dtos/mark-message-read.dto';
 import { SendMessageDto } from '../../application/dtos/send-message.dto';
 import { MessageResponseDto } from '../../application/dtos/message-response.dto';
 import { ListMessagesUseCase } from '../../application/use-cases/list-messages.use-case';
@@ -63,6 +71,14 @@ async function runWsHandler<T>(fn: () => Promise<T>): Promise<T> {
   }
 }
 
+@SkipThrottle()
+@UsePipes(
+  new ValidationPipe({
+    whitelist: true,
+    forbidNonWhitelisted: true,
+    transform: true,
+  }),
+)
 @WebSocketGateway({ namespace: '/messages', cors: { origin: '*' } })
 export class MessagesGateway
   implements OnGatewayConnection, OnGatewayDisconnect
@@ -106,7 +122,7 @@ export class MessagesGateway
   @SubscribeMessage('joinBooking')
   handleJoinBooking(
     @ConnectedSocket() client: Socket,
-    @MessageBody() data: { bookingId: string },
+    @MessageBody() data: JoinBookingDto,
   ): Promise<MessageResponseDto[]> {
     return runWsHandler(async () => {
       const user = requireSocketUser(client);
@@ -137,7 +153,7 @@ export class MessagesGateway
   @SubscribeMessage('markRead')
   handleMarkRead(
     @ConnectedSocket() client: Socket,
-    @MessageBody() data: { messageId: string },
+    @MessageBody() data: MarkMessageReadDto,
   ): Promise<MessageResponseDto> {
     return runWsHandler(async () => {
       const user = requireSocketUser(client);

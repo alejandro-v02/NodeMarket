@@ -1,4 +1,5 @@
 import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common';
+import { Throttle } from '@nestjs/throttler';
 import { LoginUserDto } from '../../application/dtos/login-user.dto';
 import { RegisterUserDto } from '../../application/dtos/register-user.dto';
 import { UserResponseDto } from '../../application/dtos/user-response.dto';
@@ -15,12 +16,14 @@ export class AuthController {
     private readonly loginUserUseCase: LoginUserUseCase,
   ) {}
 
+  @Throttle({ default: { limit: 5, ttl: 60000 } })
   @Post('register')
   async register(@Body() dto: RegisterUserDto): Promise<UserResponseDto> {
     const user = await this.registerUserUseCase.execute(dto);
     return UserResponseDto.fromDomain(user);
   }
 
+  @Throttle({ default: { limit: 5, ttl: 60000 } })
   @Post('login')
   @HttpCode(HttpStatus.OK)
   async login(@Body() dto: LoginUserDto): Promise<LoginResult> {

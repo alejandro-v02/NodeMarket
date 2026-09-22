@@ -1,4 +1,10 @@
-import { Column, CreateDateColumn, Entity, PrimaryColumn } from 'typeorm';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  Index,
+  PrimaryColumn,
+} from 'typeorm';
 import {
   PaymentMethod,
   PaymentStatus,
@@ -12,9 +18,11 @@ export class PaymentOrmEntity {
   @Column({ name: 'booking_id', type: 'uuid', unique: true })
   bookingId: string;
 
+  @Index()
   @Column({ name: 'client_id', type: 'uuid' })
   clientId: string;
 
+  @Index()
   @Column({ name: 'provider_id', type: 'uuid' })
   providerId: string;
 

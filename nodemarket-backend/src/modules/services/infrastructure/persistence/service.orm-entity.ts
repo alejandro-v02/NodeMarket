@@ -1,13 +1,21 @@
-import { Column, CreateDateColumn, Entity, PrimaryColumn } from 'typeorm';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  Index,
+  PrimaryColumn,
+} from 'typeorm';
 
 @Entity('services')
 export class ServiceOrmEntity {
   @PrimaryColumn('uuid')
   id: string;
 
+  @Index()
   @Column({ name: 'provider_id', type: 'uuid' })
   providerId: string;
 
+  @Index()
   @Column({ name: 'category_id', type: 'uuid' })
   categoryId: string;
 

@@ -1,10 +1,17 @@
-import { Column, CreateDateColumn, Entity, PrimaryColumn } from 'typeorm';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  Index,
+  PrimaryColumn,
+} from 'typeorm';
 
 @Entity('messages')
 export class MessageOrmEntity {
   @PrimaryColumn('uuid')
   id: string;
 
+  @Index()
   @Column({ name: 'booking_id', type: 'uuid' })
   bookingId: string;
 
