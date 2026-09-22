@@ -11,6 +11,7 @@ import { PaymentsModule } from './modules/payments/payments.module';
 import { ReviewsModule } from './modules/reviews/reviews.module';
 import { ServicesModule } from './modules/services/services.module';
 import { UsersModule } from './modules/users/users.module';
+import { HealthController } from './shared/infrastructure/controllers/health.controller';
 
 @Module({
   imports: [
@@ -38,6 +39,7 @@ import { UsersModule } from './modules/users/users.module';
     MessagingModule,
     NotificationsModule,
   ],
+  controllers: [HealthController],
   providers: [
     {
       provide: APP_GUARD,
