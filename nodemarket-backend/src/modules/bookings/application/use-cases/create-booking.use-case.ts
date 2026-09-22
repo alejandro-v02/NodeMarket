@@ -35,12 +35,17 @@ export class CreateBookingUseCase {
       );
     }
 
+    const scheduledAt = new Date(dto.scheduledAt);
+    if (scheduledAt.getTime() <= Date.now()) {
+      throw new BadRequestException('scheduledAt must be in the future');
+    }
+
     const booking = new Booking(
       randomUUID(),
       clientId,
       service.providerId,
       dto.serviceId,
-      new Date(dto.scheduledAt),
+      scheduledAt,
       dto.notes ?? null,
       BookingStatus.PENDING,
       new Date(),
