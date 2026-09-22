@@ -1,4 +1,10 @@
-import { Column, CreateDateColumn, Entity, PrimaryColumn } from 'typeorm';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  Index,
+  PrimaryColumn,
+} from 'typeorm';
 import { NotificationType } from '../../domain/entities/notification.entity';
 
 @Entity('notifications')
@@ -6,6 +12,7 @@ export class NotificationOrmEntity {
   @PrimaryColumn('uuid')
   id: string;
 
+  @Index()
   @Column({ name: 'user_id', type: 'uuid' })
   userId: string;
 
